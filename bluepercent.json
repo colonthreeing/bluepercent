@@ -1,0 +1,14 @@
+{
+    "id": "bluepercent",
+    "name": "Blue%",
+    "author": ["colonthreeing", "FocusSh0ck Community"],
+    "description": "The Blue% Is Real",
+    "prefix": "bluep",
+    "main_file": "main.lua",
+    "priority": 0,
+    "badge_text_colour": "0000FF",
+    "display_name": "Blue%",
+    "version": "0.1.0",
+    "dependencies": ["Steamodded (>=1.*)", "Lovely (>=0.6)"],
+    "conflicts": []
+}

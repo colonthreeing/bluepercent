@@ -1,0 +1,223 @@
+# Unmainanable bullshit but hey it works!!
+# If I were smart I would hook in to the use_card and buy_card functions
+# Although then it wouldn't get the fancy button UI...
+#
+[manifest]
+version = "1.0.0"
+priority = 0
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''
+if (e.config.ref_table.cost > G.GAME.dollars - G.GAME.bankrupt_at) and (e.config.ref_table.cost > 0) then
+    e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+    e.config.button = nil
+else
+    e.config.colour = G.C.ORANGE
+    e.config.button = 'buy_from_shop'
+end
+'''
+position = "after"
+payload = '''
+if not BluePercent:is_allowed(e) then
+    e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+    if e.config.button ~= nil then
+        e.config.old_button = 'buy_from_shop'
+        e.config.button = "BP_warn"
+    end
+end
+'''
+match_indent = true
+
+# can_buy_and_use() doesn't just call can_buy() because you can use when your cardarea is full.
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''
+if (((e.config.ref_table.cost > G.GAME.dollars - G.GAME.bankrupt_at) and (e.config.ref_table.cost > 0)) or (not e.config.ref_table:can_use_consumeable())) then
+    e.UIBox.states.visible = false
+    e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+    e.config.button = nil
+else
+    if e.config.ref_table.highlighted then
+      e.UIBox.states.visible = true
+    end
+    e.config.colour = G.C.SECONDARY_SET.Voucher
+    e.config.button = 'buy_from_shop'
+end
+'''
+position = "after"
+payload = '''
+if not BluePercent:is_allowed(e) then
+    e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+    if e.config.button ~= nil then
+        e.config.old_button = 'buy_from_shop'
+        e.config.button = "BP_warn"
+    end
+end
+'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''
+if e.config.ref_table.cost > G.GAME.dollars - G.GAME.bankrupt_at then
+    e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+    e.config.button = nil
+else
+  e.config.colour = G.C.GREEN
+  e.config.button = 'use_card'
+end
+'''
+position = "after"
+payload = '''
+if not BluePercent:is_allowed(e) then
+    e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+    if e.config.button ~= nil then
+        e.config.old_button = 'use_card'
+        e.config.button = "BP_warn"
+    end
+end
+'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''
+if e.config.ref_table:can_use_consumeable() then
+    e.config.colour = G.C.RED
+    e.config.button = 'use_card'
+else
+  e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+  e.config.button = nil
+end
+'''
+position = "after"
+payload = '''
+if not BluePercent:is_allowed(e) then
+    e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+    if e.config.button ~= nil then
+        e.config.old_button = 'use_card'
+        e.config.button = "BP_warn"
+    end
+end
+'''
+match_indent = true
+
+# Dunno if this works
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''
+if e.config.ref_table.ability.set ~= 'Joker' or (e.config.ref_table.edition and e.config.ref_table.edition.negative) or #G.jokers.cards < G.jokers.config.card_limit then
+    e.config.colour = G.C.GREEN
+    e.config.button = 'use_card'
+else
+  e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+  e.config.button = nil
+end
+'''
+position = "after"
+payload = '''
+if not BluePercent:is_allowed(e) then
+    e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+    if e.config.button ~= nil then
+        e.config.old_button = 'use_card'
+        e.config.button = "BP_warn"
+    end
+end
+'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''
+if e.config.ref_table:can_use_consumeable() then
+    e.config.colour = G.C.RED
+    e.config.button = 'use_card'
+else
+  e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+  e.config.button = nil
+end
+'''
+position = "after"
+payload = '''
+if not BluePercent:is_allowed(e) then
+    e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+    if e.config.button ~= nil then
+        e.config.old_button = 'use_card'
+        e.config.button = "BP_warn"
+    end
+end
+'''
+match_indent = true
+
+
+# As far as I am aware, we do not need to check for if packs can be opened.
+# Also, this commented out code is like waaaay out of date
+# [[patches]]
+# [patches.pattern]
+# target = "functions/button_callbacks.lua"
+# pattern = "G.FUNCS.can_open = function(e)" # note: change pattern if i readd this
+# position = "after"
+# payload = '''
+# {{lovely:check}}
+# '''
+# match_indent = true
+
+# doesn't even work :(
+# because rust doesn't support ?= lookaheads
+# [[patches]]
+# [patches.regex]
+# target = 'game.lua'
+# pattern = '(?=(.*(^bl_final_).*))(?=(?!(.*^bl_final_bell)))'
+# position = 'at'
+# payload = ''
+# match_indent = true
+
+# Patch out all finisher blinds besides the bell
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = """
+bl_final_bell =      {name = 'Cerulean Bell',defeated = false, order = 30, dollars = 8, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=26}, boss = {showdown = true, min = 10, max = 10}, boss_colour = HEX('009cfd')},
+bl_wheel =           {name = 'The Wheel',    defeated = false, order = 7, dollars = 5, mult = 2,  vars = {}, debuff = {}, pos = {x=0, y=10}, boss = {min = 2, max = 10}, boss_colour = HEX('50bf7c')},
+bl_arm =             {name = 'The Arm',      defeated = false, order = 8, dollars = 5, mult = 2,  vars = {}, debuff = {}, pos = {x=0, y=11}, boss = {min = 2, max = 10}, boss_colour = HEX('6865f3')},
+bl_psychic =         {name = 'The Psychic',  defeated = false, order = 11, dollars = 5, mult = 2, vars = {}, debuff = {h_size_ge = 5}, pos = {x=0, y=12}, boss = {min = 1, max = 10}, boss_colour = HEX('efc03c')},
+bl_goad =            {name = 'The Goad',     defeated = false, order = 12, dollars = 5, mult = 2, vars = {}, debuff = {suit = 'Spades'}, pos = {x=0, y=13}, boss = {min = 1, max = 10}, boss_colour = HEX('b95c96')},
+bl_water =           {name = 'The Water',    defeated = false, order = 13, dollars = 5, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=14}, boss = {min = 2, max = 10}, boss_colour = HEX('c6e0eb')},
+bl_eye =             {name = 'The Eye',      defeated = false, order = 16, dollars = 5, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=17}, boss = {min = 3, max = 10}, boss_colour = HEX('4b71e4')},
+bl_plant =           {name = 'The Plant',    defeated = false, order = 18, dollars = 5, mult = 2, vars = {}, debuff = {is_face = 'face'}, pos = {x=0, y=19}, boss = {min = 4, max = 10}, boss_colour = HEX('709284')},
+bl_needle =          {name = 'The Needle',   defeated = false, order = 21, dollars = 5, mult = 1, vars = {}, debuff = {}, pos = {x=0, y=20}, boss = {min = 2, max = 10}, boss_colour = HEX('5c6e31')},
+bl_head =            {name = 'The Head',     defeated = false, order = 22, dollars = 5, mult = 2, vars = {}, debuff = {suit = 'Hearts'}, pos = {x=0, y=21}, boss = {min = 1, max = 10}, boss_colour = HEX('ac9db4')},
+bl_final_leaf =      {name = 'Verdant Leaf', defeated = false, order = 27, dollars = 8, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=28}, boss = {showdown = true, min = 10, max = 10}, boss_colour = HEX('56a786')},
+bl_final_vessel =    {name = 'Violet Vessel',defeated = false, order = 28, dollars = 8, mult = 6, vars = {}, debuff = {}, pos = {x=0, y=29}, boss = {showdown = true, min = 10, max = 10}, boss_colour = HEX('8a71e1')},
+bl_window =          {name = 'The Window',   defeated = false, order = 14, dollars = 5, mult = 2, vars = {}, debuff = {suit = 'Diamonds'}, pos = {x=0, y=6}, boss = {min = 1, max = 10}, boss_colour = HEX('a9a295')},
+bl_serpent =         {name = 'The Serpent',  defeated = false, order = 19, dollars = 5, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=15}, boss = {min = 5, max = 10}, boss_colour = HEX('439a4f')},
+bl_pillar =          {name = 'The Pillar',   defeated = false, order = 20, dollars = 5, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=16}, boss = {min = 1, max = 10}, boss_colour = HEX('7e6752')},
+bl_flint =           {name = 'The Flint',    defeated = false, order = 24, dollars = 5, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=24}, boss = {min = 2, max = 10}, boss_colour = HEX('e56a2f')},
+bl_final_acorn =     {name = 'Amber Acorn',  defeated = false, order = 26, dollars = 8, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=27}, boss = {showdown = true, min = 10, max = 10}, boss_colour = HEX('fda200')},
+bl_final_heart =     {name = 'Crimson Heart',defeated = false, order = 29, dollars = 8, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=25}, boss = {showdown = true, min = 10, max = 10}, boss_colour = HEX('ac3232')},
+"""
+match_indent = true
+position = "at"
+payload = """
+bl_final_bell =      {name = 'Cerulean Bell',defeated = false, order = 30, dollars = 8, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=26}, boss = {showdown = true, min = 10, max = 10}, boss_colour = HEX('009cfd')},
+bl_wheel =           {name = 'The Wheel',    defeated = false, order = 7, dollars = 5, mult = 2,  vars = {}, debuff = {}, pos = {x=0, y=10}, boss = {min = 2, max = 10}, boss_colour = HEX('50bf7c')},
+bl_arm =             {name = 'The Arm',      defeated = false, order = 8, dollars = 5, mult = 2,  vars = {}, debuff = {}, pos = {x=0, y=11}, boss = {min = 2, max = 10}, boss_colour = HEX('6865f3')},
+bl_psychic =         {name = 'The Psychic',  defeated = false, order = 11, dollars = 5, mult = 2, vars = {}, debuff = {h_size_ge = 5}, pos = {x=0, y=12}, boss = {min = 1, max = 10}, boss_colour = HEX('efc03c')},
+bl_goad =            {name = 'The Goad',     defeated = false, order = 12, dollars = 5, mult = 2, vars = {}, debuff = {suit = 'Spades'}, pos = {x=0, y=13}, boss = {min = 1, max = 10}, boss_colour = HEX('b95c96')},
+bl_water =           {name = 'The Water',    defeated = false, order = 13, dollars = 5, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=14}, boss = {min = 2, max = 10}, boss_colour = HEX('c6e0eb')},
+bl_eye =             {name = 'The Eye',      defeated = false, order = 16, dollars = 5, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=17}, boss = {min = 3, max = 10}, boss_colour = HEX('4b71e4')},
+bl_plant =           {name = 'The Plant',    defeated = false, order = 18, dollars = 5, mult = 2, vars = {}, debuff = {is_face = 'face'}, pos = {x=0, y=19}, boss = {min = 4, max = 10}, boss_colour = HEX('709284')},
+bl_needle =          {name = 'The Needle',   defeated = false, order = 21, dollars = 5, mult = 1, vars = {}, debuff = {}, pos = {x=0, y=20}, boss = {min = 2, max = 10}, boss_colour = HEX('5c6e31')},
+bl_head =            {name = 'The Head',     defeated = false, order = 22, dollars = 5, mult = 2, vars = {}, debuff = {suit = 'Hearts'}, pos = {x=0, y=21}, boss = {min = 1, max = 10}, boss_colour = HEX('ac9db4')},
+bl_window =          {name = 'The Window',   defeated = false, order = 14, dollars = 5, mult = 2, vars = {}, debuff = {suit = 'Diamonds'}, pos = {x=0, y=6}, boss = {min = 1, max = 10}, boss_colour = HEX('a9a295')},
+bl_serpent =         {name = 'The Serpent',  defeated = false, order = 19, dollars = 5, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=15}, boss = {min = 5, max = 10}, boss_colour = HEX('439a4f')},
+bl_pillar =          {name = 'The Pillar',   defeated = false, order = 20, dollars = 5, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=16}, boss = {min = 1, max = 10}, boss_colour = HEX('7e6752')},
+bl_flint =           {name = 'The Flint',    defeated = false, order = 24, dollars = 5, mult = 2, vars = {}, debuff = {}, pos = {x=0, y=24}, boss = {min = 2, max = 10}, boss_colour = HEX('e56a2f')},
+"""
