@@ -161,7 +161,12 @@ local old_skip = G.FUNCS.skip_blind
 ---@diagnostic disable-next-line: duplicate-set-field
 G.FUNCS.skip_blind = function(e)
     if e.config.ref_table.ability.blind_type == "Small" then
-        lose_game()
+        if SMODS.Mods["bluepercent"].config.skip_penalty == true then
+            lose_game()
+        else
+            G.FUNCS.BP_fuck_you()
+            return
+        end
     end
     return old_skip(e)
 end
@@ -171,7 +176,12 @@ local old_select = G.FUNCS.select_blind
 ---@diagnostic disable-next-line: duplicate-set-field
 G.FUNCS.select_blind = function(e)
     if e.config.ref_table.key == "bl_big" then
-        lose_game()
+        if SMODS.Mods["bluepercent"].config.skip_penalty == true then
+            lose_game()
+        else
+            G.FUNCS.BP_fuck_you()
+            return
+        end
     end
     return old_select(e)
 end
@@ -196,7 +206,10 @@ end
 --         ['en-us'] = {
 --             "Holy shit. You did it.",
 --         }
---     }
+--     },
+--     filter = function()
+--         return true, { rarity = 0 }
+--     end
 -- }
 
 -- SMODS.JimboQuip{
@@ -236,6 +249,23 @@ function G.FUNCS.BP_temp_buy(e)
     -- this function is automatically overwritten
     -- as needed, so that the "Buy Anyway" button
     -- works properly
+end
+
+function G.FUNCS.BP_lose(e)
+    lose_game()
+    G.FUNCS.exit_overlay_menu()
+end
+
+function G.FUNCS.BP_fuck_you(e)
+    BluePercent:overlay_message(
+        { "Lmao nice try" },
+        {
+            {
+                name = "Perish",
+                func = "BP_lose"
+            }
+        }
+    )
 end
 
 function BluePercent:overlay_message(message, buttons)
@@ -337,12 +367,27 @@ SMODS.current_mod.config_tab = function()
             colour = G.C.BLACK,
         },
         nodes = {
-            create_toggle({
-                id = "enable_club_kills",
-                label = "Non-clubs instantly gameover",
-                ref_table = SMODS.Mods["bluepercent"].config,
-                ref_value = "enable_club_kills"
-            }),
+            {
+                n = G.UIT.C,
+                config = {
+                    padding = 0.2,
+                    align = "cm",
+                },
+                nodes = {
+                    create_toggle({
+                        id = "enable_club_kills",
+                        label = "Non-clubs instantly gameover",
+                        ref_table = SMODS.Mods["bluepercent"].config,
+                        ref_value = "enable_club_kills"
+                    }),
+                    create_toggle({
+                        id = "skip_penalty",
+                        label = "Penalize selecting big blind and skipping small blind",
+                        ref_table = SMODS.Mods["bluepercent"].config,
+                        ref_value = "skip_penalty"
+                    }),
+                }
+            },
         }
     }
 end
