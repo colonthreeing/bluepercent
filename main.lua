@@ -177,6 +177,7 @@ G.FUNCS.select_blind = function(e)
 end
 
 SMODS.current_mod.calculate = function(card, context)
+    if SMODS.Mods["bluepercent"].config.enable_club_kills ~= true then return end
     if context.before then
         for index, found_card in pairs(context.full_hand) do
             if not (found_card:is_suit("Clubs") or found_card.debuff == true) then
@@ -325,6 +326,23 @@ function BluePercent:overlay_message(message, buttons)
 	})
 end
 
-local https=require"https"
-
-print(https.request("localhost:5000"))
+SMODS.current_mod.config_tab = function()
+    return {
+        n = G.UIT.ROOT,
+        config = {
+            r = 0.1,
+            minw = 5,
+            align = "cm",
+            padding = 0.2,
+            colour = G.C.BLACK,
+        },
+        nodes = {
+            create_toggle({
+                id = "enable_club_kills",
+                label = "Non-clubs instantly gameover",
+                ref_table = SMODS.Mods["bluepercent"].config,
+                ref_value = "enable_club_kills"
+            }),
+        }
+    }
+end
