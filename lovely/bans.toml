@@ -5,6 +5,7 @@
 [manifest]
 version = "1.0.0"
 priority = 0
+dump_lua = true
 
 [[patches]]
 [patches.pattern]
@@ -156,6 +157,29 @@ end
 '''
 match_indent = true
 
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''
+if card.ability.set ~= 'Joker' or #G.jokers.cards < G.jokers.config.card_limit + card_limit then
+    e.config.colour = G.C.GREEN
+    e.config.button = 'use_card'
+else
+  e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+  e.config.button = nil
+end
+'''
+position = "after"
+payload = '''
+if not BluePercent:is_allowed(e) then
+    e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+    if e.config.button ~= nil then
+        e.config.old_button = 'use_card'
+        e.config.button = "BP_warn"
+    end
+end
+'''
+match_indent = true
 
 # As far as I am aware, we do not need to check for if packs can be opened.
 # Also, this commented out code is like waaaay out of date

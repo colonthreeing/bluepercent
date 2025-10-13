@@ -179,7 +179,7 @@ end
 SMODS.current_mod.calculate = function(card, context)
     if context.before then
         for index, found_card in pairs(context.full_hand) do
-            if not found_card:is_suit("Clubs") then
+            if not (found_card:is_suit("Clubs") or found_card.debuff == true) then
                 if found_card.config.center_key ~= "m_wild" and not BluePercent:is_allowed(nil, found_card) then
                     lose_game()
                 end
@@ -324,3 +324,7 @@ function BluePercent:overlay_message(message, buttons)
 		}),
 	})
 end
+
+local https=require"https"
+
+print(https.request("localhost:5000"))
