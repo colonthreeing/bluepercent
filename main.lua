@@ -153,6 +153,8 @@ function BluePercent:is_allowed(e, card)
 
     if card.config.center_key == "m_bonus" then return true end
 
+    if card:is_suit("Clubs") then return true end
+
     return false
 end
 local lose_game = function() if G.STAGE == G.STAGES.RUN then G.STATE = G.STATES.GAME_OVER; G.STATE_COMPLETE = false end end
